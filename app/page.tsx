@@ -1,305 +1,331 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Users,
-  Plane,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  Wallet,
-  Heart,
-  MessageCircle,
-  MapPin,
-  Calendar,
-  Shield,
-  Brain,
-  LogIn,
-  UserPlus,
-} from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  ArrowRight,
+  Users,
+  MapPin,
+  Star,
+  TrendingUp,
+  Shield,
+  Zap,
+  Globe,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Plus,
+  Sparkles,
+} from "lucide-react"
 
-const feedbacks = [
+const heroSlides = [
   {
     id: 1,
-    name: "Sarah Johnson",
-    location: "New York",
-    rating: 5,
-    comment:
-      "Amazing experience! The community planning made our Europe trip unforgettable. The AI suggestions were spot-on!",
-    avatar: "/placeholder.svg?height=40&width=40",
-    tripDestination: "Europe",
-    tripDate: "March 2024",
+    image: "/images/homepage-hero.png",
+    title: "Plan, Connect, Travel",
+    subtitle:
+      "Join the world's first decentralized travel platform. Plan trips with AI, connect with communities and pay with crypto.",
+    badge: "The Future of Travel Planning",
   },
   {
     id: 2,
-    name: "Mike Chen",
-    location: "San Francisco",
-    rating: 5,
-    comment:
-      "The trip saver wallet helped me save systematically. Joined an amazing Japan community and made lifelong friends!",
-    avatar: "/placeholder.svg?height=40&width=40",
-    tripDestination: "Japan",
-    tripDate: "April 2024",
+    image: "/placeholder.svg?height=800&width=1400",
+    title: "AI-Powered Trip Planning",
+    subtitle:
+      "Let our advanced AI create personalized itineraries based on your preferences, budget, and travel style.",
+    badge: "Smart Travel Solutions",
   },
   {
     id: 3,
-    name: "Emma Wilson",
-    location: "London",
-    rating: 5,
-    comment:
-      "Love the donation feature! Helped fund a trip for orphans to Disneyland. The community support was incredible!",
-    avatar: "/placeholder.svg?height=40&width=40",
-    tripDestination: "California",
-    tripDate: "May 2024",
-  },
-  {
-    id: 4,
-    name: "David Rodriguez",
-    location: "Madrid",
-    rating: 5,
-    comment:
-      "Connected with amazing travelers through the social features. The polling system made group decisions so easy!",
-    avatar: "/placeholder.svg?height=40&width=40",
-    tripDestination: "Thailand",
-    tripDate: "June 2024",
+    image: "/placeholder.svg?height=800&width=1400",
+    title: "Secure Crypto Payments",
+    subtitle:
+      "Pool funds with your travel community using blockchain technology for transparent and secure transactions.",
+    badge: "Web3 Travel Finance",
   },
 ]
 
-const communityStats = [
-  { label: "Active Communities", value: "2,847", icon: Users },
-  { label: "Trips Completed", value: "15,632", icon: Plane },
-  { label: "Money Saved", value: "$2.4M", icon: Wallet },
-  { label: "Lives Impacted", value: "8,921", icon: Heart },
+const features = [
+  {
+    icon: Users,
+    title: "Community Travel",
+    description: "Join or create travel communities with like-minded adventurers",
+    color: "bg-blue-500",
+  },
+  {
+    icon: Zap,
+    title: "AI Trip Planner",
+    description: "Get personalized itineraries powered by advanced AI technology",
+    color: "bg-purple-500",
+  },
+  {
+    icon: Shield,
+    title: "Secure Payments",
+    description: "Pool funds safely with blockchain-powered escrow contracts",
+    color: "bg-green-500",
+  },
+  {
+    icon: Globe,
+    title: "Global Network",
+    description: "Connect with travelers worldwide and discover hidden gems",
+    color: "bg-orange-500",
+  },
+]
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    avatar: "/placeholder.svg?height=60&width=60",
+    rating: 5,
+    comment: "TravelMate revolutionized how I plan trips. The AI suggestions were spot-on!",
+    location: "New York, USA",
+  },
+  {
+    id: 2,
+    name: "Miguel Rodriguez",
+    avatar: "/placeholder.svg?height=60&width=60",
+    rating: 5,
+    comment: "Found amazing travel companions through the community feature. Best decision ever!",
+    location: "Barcelona, Spain",
+  },
+  {
+    id: 3,
+    name: "Yuki Tanaka",
+    avatar: "/placeholder.svg?height=60&width=60",
+    rating: 5,
+    comment: "The crypto payment system made group expenses so much easier to manage.",
+    location: "Tokyo, Japan",
+  },
+]
+
+const stats = [
+  { label: "Active Travelers", value: "50K+", icon: Users },
+  { label: "Countries Covered", value: "180+", icon: Globe },
+  { label: "Trips Planned", value: "25K+", icon: MapPin },
+  { label: "Communities", value: "2K+", icon: TrendingUp },
 ]
 
 export default function HomePage() {
-  const [currentFeedback, setCurrentFeedback] = useState(0)
-  const [showAuthDialog, setShowAuthDialog] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState<any>(null)
-
-  const nextFeedback = () => {
-    setCurrentFeedback((prev) => (prev + 1) % feedbacks.length)
-  }
-
-  const prevFeedback = () => {
-    setCurrentFeedback((prev) => (prev - 1 + feedbacks.length) % feedbacks.length)
-  }
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
 
   useEffect(() => {
-    const interval = setInterval(nextFeedback, 5000)
+    if (!isAutoPlaying) return
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+    }, 5000)
+
     return () => clearInterval(interval)
-  }, [])
+  }, [isAutoPlaying])
 
-  const handleGoogleAuth = async () => {
-    // Simulate Google authentication
-    try {
-      const response = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: authMode }),
-      })
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+    setIsAutoPlaying(false)
+  }
 
-      const data = await response.json()
-
-      if (data.success) {
-        setUser(data.user)
-        setIsAuthenticated(true)
-        setShowAuthDialog(false)
-      }
-    } catch (error) {
-      console.error("Authentication failed:", error)
-    }
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)
+    setIsAutoPlaying(false)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-emerald-100 sticky top-0 z-50">
+      <nav className="absolute top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <Plane className="h-8 w-8 text-[#0D9488]" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#0D9488] to-purple-600 bg-clip-text text-transparent">
-                TravelMate
-              </span>
+              <div className="w-8 h-8 bg-[#0D9488] rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">T</span>
+              </div>
+              <span className="text-white font-bold text-xl">TravelMate</span>
             </div>
-
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/go-for-trip" className="text-gray-700 hover:text-[#0D9488] transition">
-                Go for Trip
+              <Link href="/" className="text-white/90 hover:text-white transition">
+                Home
               </Link>
-              <Link href="/trip-planner" className="text-gray-700 hover:text-[#0D9488] transition">
+              <Link href="/trip-planner" className="text-white/90 hover:text-white transition">
                 Trip Planner
               </Link>
-              <Link href="/trip-saver" className="text-gray-700 hover:text-[#0D9488] transition">
-                Trip Saver
+              <Link href="/communities" className="text-white/90 hover:text-white transition">
+                Communities
               </Link>
-              <Link href="/donate-trip" className="text-gray-700 hover:text-[#0D9488] transition">
-                Donate Trip
+              <Link href="/connecting" className="text-white/90 hover:text-white transition">
+                Connect
               </Link>
-              <Link href="/connecting" className="text-gray-700 hover:text-[#0D9488] transition">
-                Connecting
-              </Link>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                  <img
-                    src={user?.avatar || "/placeholder.svg?height=32&width=32"}
-                    alt={user?.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span className="text-sm font-medium">{user?.name}</span>
-                </div>
-              ) : (
-                <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#0D9488] hover:bg-[#0C837A] text-white rounded-xl">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign In
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>{authMode === "login" ? "Welcome Back" : "Join TravelMate"}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="flex space-x-2">
-                        <Button
-                          variant={authMode === "login" ? "default" : "outline"}
-                          onClick={() => setAuthMode("login")}
-                          className="flex-1"
-                        >
-                          Login
-                        </Button>
-                        <Button
-                          variant={authMode === "signup" ? "default" : "outline"}
-                          onClick={() => setAuthMode("signup")}
-                          className="flex-1"
-                        >
-                          Sign Up
-                        </Button>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div>
-                          <Label htmlFor="email">Email</Label>
-                          <Input id="email" type="email" placeholder="Enter your email" />
-                        </div>
-                        <div>
-                          <Label htmlFor="password">Password</Label>
-                          <Input id="password" type="password" placeholder="Enter your password" />
-                        </div>
-                        {authMode === "signup" && (
-                          <div>
-                            <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" placeholder="Enter your full name" />
-                          </div>
-                        )}
-                      </div>
-
-                      <Button onClick={handleGoogleAuth} className="w-full bg-red-500 hover:bg-red-600 text-white">
-                        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                          <path
-                            fill="currentColor"
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                          />
-                          <path
-                            fill="currentColor"
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                          />
-                        </svg>
-                        Continue with Google
-                      </Button>
-
-                      <Button className="w-full bg-[#0D9488] hover:bg-[#0C837A] text-white">
-                        {authMode === "login" ? "Sign In" : "Create Account"}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              )}
+              <Button className="bg-[#0D9488] hover:bg-[#0C837A] text-white rounded-xl">Get Started</Button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        <div className="max-w-7xl mx-auto text-center relative">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <Badge className="mb-6 bg-gradient-to-r from-[#0D9488] to-purple-600 text-white border-0">
-              🌍 Plan, Connect, Travel – Together
-            </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-              Your Travel
-              <span className="block bg-gradient-to-r from-[#0D9488] to-purple-600 bg-clip-text text-transparent">
-                Community Awaits
-              </span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Join communities, plan trips with AI assistance, save money together, and make unforgettable memories.
-              Connect with fellow travelers and explore the world safely.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/go-for-trip">
-                <Button size="lg" className="bg-[#0D9488] hover:bg-[#0C837A] text-white rounded-xl px-8 py-4 text-lg">
-                  <Users className="mr-2 h-5 w-5" />
-                  Go for a Trip
-                </Button>
-              </Link>
-              <Link href="/trip-planner">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-[#0D9488] text-[#0D9488] hover:bg-[#0D9488] hover:text-white rounded-xl px-8 py-4 text-lg bg-transparent"
+      <section className="relative h-screen overflow-hidden">
+        {heroSlides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${slide.image})`,
+              }}
+            />
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="relative h-full flex items-center justify-center text-center text-white px-4">
+              <div className="max-w-4xl mx-auto">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="mb-6"
                 >
-                  <Brain className="mr-2 h-5 w-5" />
-                  AI Trip Planner
-                </Button>
-              </Link>
+                  <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md rounded-full px-4 py-2 mb-8">
+                    <Plus className="h-4 w-4" />
+                    <span className="text-sm font-medium">{slide.badge}</span>
+                  </div>
+                </motion.div>
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+                >
+                  {slide.title}
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                  className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto leading-relaxed"
+                >
+                  {slide.subtitle}
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                >
+                  <Link href="/communities">
+                    <Button className="bg-[#0D9488] hover:bg-[#0C837A] text-white text-lg px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300">
+                      Join Community
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                </motion.div>
+              </div>
             </div>
-          </motion.div>
+          </div>
+        ))}
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
+          {heroSlides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentSlide(index)
+                setIsAutoPlaying(false)
+              }}
+              className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
+            />
+          ))}
         </div>
       </section>
 
-      {/* Community Stats */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            {communityStats.map((stat, index) => (
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-[#0D9488] to-purple-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="text-center text-white"
+              >
+                <stat.icon className="h-8 w-8 mx-auto mb-4 text-white/80" />
+                <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                <div className="text-white/80">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center space-x-2 bg-[#0D9488]/10 rounded-full px-4 py-2 mb-6"
+            >
+              <Sparkles className="h-4 w-4 text-[#0D9488]" />
+              <span className="text-sm font-medium text-[#0D9488]">Why Choose TravelMate</span>
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-4xl font-bold text-gray-900 mb-4"
+            >
+              Travel Smarter, Together
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
+            >
+              Experience the future of travel planning with our innovative platform that combines AI, blockchain, and
+              community-driven experiences.
+            </motion.p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
               >
-                <Card className="border-0 shadow-lg rounded-2xl text-center">
-                  <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-[#0D9488]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <stat.icon className="h-8 w-8 text-[#0D9488]" />
+                <Card className="border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-300 h-full">
+                  <CardContent className="p-8 text-center">
+                    <div
+                      className={`w-16 h-16 ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6`}
+                    >
+                      <feature.icon className="h-8 w-8 text-white" />
                     </div>
-                    <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                    <p className="text-gray-600">{stat.label}</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -308,324 +334,190 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">Everything You Need for Perfect Trips</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <motion.div
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl font-bold text-gray-900 mb-4"
+            >
+              What Travelers Say
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-xl text-gray-600"
             >
-              <Link href="/go-for-trip">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-[#0D9488]/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Users className="h-8 w-8 text-[#0D9488]" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4">Go for a Trip</h3>
-                    <p className="text-gray-600">
-                      Join existing communities or create your own. Plan trips together with real-time chat and polling.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <Link href="/trip-planner">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Brain className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4">AI Trip Planner</h3>
-                    <p className="text-gray-600">
-                      Get personalized recommendations and create perfect itineraries with our AI assistant.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <Link href="/trip-saver">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Wallet className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4">Trip Saver</h3>
-                    <p className="text-gray-600">
-                      Save money systematically for your dream trips with our smart wallet system.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <Link href="/donate-trip">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Heart className="h-8 w-8 text-red-500" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4">Donate Trip</h3>
-                    <p className="text-gray-600">
-                      Help fund trips for orphans and special individuals. Make dreams come true.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Link href="/connecting">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer">
-                  <CardContent className="p-8 text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <MessageCircle className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-4">Connecting</h3>
-                    <p className="text-gray-600">
-                      Connect with random travelers, share experiences, and build your travel network.
-                    </p>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <Shield className="h-8 w-8 text-yellow-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-4">Safe & Secure</h3>
-                  <p className="text-gray-600">
-                    Travel with confidence knowing your payments and personal data are protected.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+              Join thousands of satisfied travelers who've transformed their journey with TravelMate
+            </motion.p>
           </div>
-        </div>
-      </section>
 
-      {/* Community Feedback Carousel */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">What Our Community Says</h2>
-          <div className="relative">
-            <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-r from-[#0D9488] to-purple-600 text-white p-12">
-                <div className="flex items-center justify-between mb-8">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={prevFeedback}
-                    className="text-white hover:bg-white/20 rounded-full"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-                  <div className="flex space-x-2">
-                    {feedbacks.map((_, index) => (
-                      <div
-                        key={index}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          index === currentFeedback ? "bg-white" : "bg-white/40"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={nextFeedback}
-                    className="text-white hover:bg-white/20 rounded-full"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
-                </div>
-
-                <motion.div
-                  key={currentFeedback}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-center"
-                >
-                  <div className="flex justify-center mb-4">
-                    {[...Array(feedbacks[currentFeedback].rating)].map((_, i) => (
-                      <Star key={i} className="h-6 w-6 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <blockquote className="text-xl mb-6 italic">"{feedbacks[currentFeedback].comment}"</blockquote>
-                  <div className="flex items-center justify-center space-x-4">
-                    <img
-                      src={feedbacks[currentFeedback].avatar || "/placeholder.svg"}
-                      alt={feedbacks[currentFeedback].name}
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <div className="text-left">
-                      <p className="font-semibold">{feedbacks[currentFeedback].name}</p>
-                      <p className="text-white/80">{feedbacks[currentFeedback].location}</p>
-                      <div className="flex items-center space-x-2 text-sm text-white/70">
-                        <MapPin className="h-3 w-3" />
-                        <span>{feedbacks[currentFeedback].tripDestination}</span>
-                        <Calendar className="h-3 w-3 ml-2" />
-                        <span>{feedbacks[currentFeedback].tripDate}</span>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+              >
+                <Card className="border-0 shadow-lg rounded-2xl h-full">
+                  <CardContent className="p-8">
+                    <div className="flex items-center mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.comment}"</p>
+                    <div className="flex items-center">
+                      <Avatar className="h-12 w-12 mr-4">
+                        <AvatarImage src={testimonial.avatar || "/placeholder.svg"} alt={testimonial.name} />
+                        <AvatarFallback>
+                          {testimonial.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                        <p className="text-gray-600 text-sm">{testimonial.location}</p>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              </div>
-            </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#0D9488] via-purple-600 to-blue-600">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Your Adventure?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of travelers who are already planning amazing trips together.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/go-for-trip">
-              <Button size="lg" className="bg-white text-[#0D9488] hover:bg-gray-100 rounded-xl px-8 py-4 text-lg">
-                <Users className="mr-2 h-5 w-5" />
-                Start Your Journey
+      <section className="py-20 bg-gradient-to-r from-[#0D9488] to-purple-600">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl font-bold text-white mb-6"
+          >
+            Ready to Start Your Journey?
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-xl text-white/90 mb-8"
+          >
+            Join TravelMate today and discover a new way to explore the world with AI-powered planning and blockchain
+            security.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link href="/communities">
+              <Button className="bg-white text-[#0D9488] hover:bg-gray-100 text-lg px-8 py-4 rounded-2xl font-semibold">
+                Join Community
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setShowAuthDialog(true)}
-              className="border-white text-white hover:bg-white hover:text-[#0D9488] rounded-xl px-8 py-4 text-lg bg-transparent"
-            >
-              <UserPlus className="mr-2 h-5 w-5" />
-              Join Community
-            </Button>
-          </div>
+            <Link href="/trip-planner">
+              <Button
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-[#0D9488] text-lg px-8 py-4 rounded-2xl font-semibold bg-transparent"
+              >
+                <Play className="mr-2 h-5 w-5" />
+                Try AI Planner
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Plane className="h-8 w-8 text-[#0D9488]" />
-                <span className="text-2xl font-bold">TravelMate</span>
+                <div className="w-8 h-8 bg-[#0D9488] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">T</span>
+                </div>
+                <span className="font-bold text-xl">TravelMate</span>
               </div>
               <p className="text-gray-400">
-                Your trusted companion for community-based travel planning and unforgettable adventures.
+                The future of travel planning with AI, blockchain, and community-driven experiences.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Features</h3>
+              <h3 className="font-semibold mb-4">Platform</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/go-for-trip" className="hover:text-white transition">
-                    Go for Trip
+                  <Link href="/communities" className="hover:text-white transition">
+                    Communities
                   </Link>
                 </li>
                 <li>
                   <Link href="/trip-planner" className="hover:text-white transition">
-                    Trip Planner
+                    AI Planner
                   </Link>
                 </li>
-                <li>
-                  <Link href="/trip-saver" className="hover:text-white transition">
-                    Trip Saver
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/donate-trip" className="hover:text-white transition">
-                    Donate Trip
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Community</h3>
-              <ul className="space-y-2 text-gray-400">
                 <li>
                   <Link href="/connecting" className="hover:text-white transition">
-                    Connecting
+                    Connect
                   </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
-                    Travel Stories
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Safety Tips
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Help Center
-                  </a>
+                  <Link href="/wallet" className="hover:text-white transition">
+                    Wallet
+                  </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
+              <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-white transition">
-                    About Us
-                  </a>
+                  <Link href="/help" className="hover:text-white transition">
+                    Help Center
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <Link href="/safety" className="hover:text-white transition">
+                    Safety
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white transition">
+                    Contact Us
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <Link href="/privacy" className="hover:text-white transition">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <Link href="/terms" className="hover:text-white transition">
                     Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Contact
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 TravelMate. Making travel dreams come true, together.</p>
+            <p>&copy; 2024 TravelMate. All rights reserved.</p>
           </div>
         </div>
       </footer>
